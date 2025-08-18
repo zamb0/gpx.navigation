@@ -14,6 +14,7 @@ import { TrackSegment, TrackPoint } from '../lib/gpx/gpx';
 
 interface ElevationProfileProps {
     tracks: LeafletGPXTrack[];
+    trackVisibility?: Map<number, boolean>; // Receive visibility state from parent
     onPointHover?: (
         coordinate: { latitude: number; longitude: number },
         pointIndex: number,
@@ -33,14 +34,12 @@ interface ElevationPoint {
 
 const ElevationProfile: React.FC<ElevationProfileProps> = ({
     tracks,
+    trackVisibility,
     onPointHover,
     onTrackVisibilityChange,
     height = 200,
 }) => {
     const [selectedPointIndex, setSelectedPointIndex] = useState<number | null>(null);
-    const [visibleTracks, setVisibleTracks] = useState<Set<number>>(
-        new Set(tracks.map((_, index) => index)) // All tracks visible by default
-    );
     const [cursorPosition, setCursorPosition] = useState<{
         x: number;
         y: number;
@@ -54,6 +53,21 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const chartWidth = screenWidth - 40; // Margini laterali
     const chartHeight = height - 60; // Spazio per etichette
 
+    // Helper function to check if track is visible
+    const isTrackVisible = useCallback(
+        (trackIndex: number) => {
+            if (!trackVisibility) return true; // If no visibility map, show all tracks
+            return trackVisibility.get(trackIndex) !== false; // Show if not explicitly false
+        },
+        [trackVisibility]
+    );
+
+    // Calculate visible tracks count
+    const visibleTracksCount = useMemo(() => {
+        if (!trackVisibility) return tracks.length;
+        return tracks.filter((_, index) => isTrackVisible(index)).length;
+    }, [tracks, trackVisibility, isTrackVisible]);
+
     // Calcola i dati del profilo altimetrico usando solo la libreria GPX
     const elevationData = useMemo((): ElevationPoint[] => {
         if (!tracks || tracks.length === 0) return [];
@@ -63,7 +77,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
         tracks.forEach((track, trackIndex) => {
             // Skip tracks that are not visible
-            if (!visibleTracks.has(trackIndex)) {
+            if (!isTrackVisible(trackIndex)) {
                 return;
             }
 
@@ -156,29 +170,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
         });
 
         return points;
-    }, [tracks, visibleTracks]);
-
-    // Handle track visibility changes
-    const toggleTrackVisibility = useCallback(
-        (trackIndex: number) => {
-            setVisibleTracks((prev) => {
-                const newSet = new Set(prev);
-                if (newSet.has(trackIndex)) {
-                    newSet.delete(trackIndex);
-                } else {
-                    newSet.add(trackIndex);
-                }
-
-                // Notify parent component about the visibility change
-                if (onTrackVisibilityChange) {
-                    onTrackVisibilityChange(trackIndex, !prev.has(trackIndex));
-                }
-
-                return newSet;
-            });
-        },
-        [onTrackVisibilityChange]
-    );
+    }, [tracks, trackVisibility, isTrackVisible]);
 
     // Calcola i valori min/max per la scala e il dislivello corretto usando la libreria GPX
     const chartBounds = useMemo(() => {
@@ -203,7 +195,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
         tracks.forEach((track, trackIndex) => {
             // Skip tracks that are not visible
-            if (!visibleTracks.has(trackIndex)) {
+            if (!isTrackVisible(trackIndex)) {
                 return;
             }
 
@@ -342,7 +334,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             elevationGain: totalElevationGain,
             elevationLoss: totalElevationLoss,
         };
-    }, [elevationData, tracks, visibleTracks]); // Genera il path SVG per il profilo
+    }, [elevationData, tracks, trackVisibility, isTrackVisible]); // Genera il path SVG per il profilo
     const profilePath = useMemo(() => {
         if (elevationData.length === 0) return '';
 
@@ -486,7 +478,11 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     if (elevationData.length === 0) {
         return (
             <View style={[styles.container, { height }]}>
-                <Text style={styles.noDataText}>Nessun dato altimetrico disponibile</Text>
+                <Text style={styles.noDataText}>
+                    {visibleTracksCount === 0
+                        ? 'Seleziona almeno una traccia da visualizzare'
+                        : 'Nessun dato altimetrico disponibile'}
+                </Text>
             </View>
         );
     }
@@ -495,38 +491,6 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     return (
         <View style={[styles.container, { height }]}>
-            {/* Track Selection UI */}
-            {tracks.length > 1 && (
-                <View style={styles.trackSelectionContainer}>
-                    <Text style={styles.trackSelectionTitle}>Tracce:</Text>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        style={styles.trackList}
-                    >
-                        {tracks.map((track, index) => (
-                            <TouchableOpacity
-                                key={index}
-                                style={[
-                                    styles.trackButton,
-                                    visibleTracks.has(index) && styles.trackButtonActive,
-                                ]}
-                                onPress={() => toggleTrackVisibility(index)}
-                            >
-                                <Text
-                                    style={[
-                                        styles.trackButtonText,
-                                        visibleTracks.has(index) && styles.trackButtonTextActive,
-                                    ]}
-                                >
-                                    T{index + 1}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-            )}
-
             {/* Header compatto */}
             <View style={styles.headerContainer}>
                 <Text style={styles.title}>📊 Profilo Altimetrico</Text>
@@ -688,42 +652,6 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-    },
-    trackSelectionContainer: {
-        marginBottom: 12,
-        paddingBottom: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-    },
-    trackSelectionTitle: {
-        fontSize: 12,
-        fontWeight: '600',
-        color: '#374151',
-        marginBottom: 8,
-    },
-    trackList: {
-        flexDirection: 'row',
-    },
-    trackButton: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        marginRight: 8,
-        borderRadius: 16,
-        backgroundColor: '#F3F4F6',
-        borderWidth: 1,
-        borderColor: '#D1D5DB',
-    },
-    trackButtonActive: {
-        backgroundColor: '#3B82F6',
-        borderColor: '#2563EB',
-    },
-    trackButtonText: {
-        fontSize: 11,
-        fontWeight: '500',
-        color: '#6B7280',
-    },
-    trackButtonTextActive: {
-        color: 'white',
     },
     headerContainer: {
         marginBottom: 12,

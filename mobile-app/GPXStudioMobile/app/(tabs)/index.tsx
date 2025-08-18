@@ -1,4 +1,4 @@
-import { StyleSheet, View, Alert, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Alert, TouchableOpacity, Text } from 'react-native';
 import { useState, useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
 
@@ -12,10 +12,12 @@ import { useSettings } from '@/src/context/AppSettingsContext';
 export default function MapScreen() {
     const { files, getAllTracks, getAllWaypoints } = useGPXContext();
     const { settings } = useSettings();
+
     const [tracks, setTracks] = useState<LeafletGPXTrack[]>([]);
     const [waypoints, setWaypoints] = useState<LeafletGPXWaypoint[]>([]);
     const [isLoadingLocation, setIsLoadingLocation] = useState(true);
     const [showElevationProfile, setShowElevationProfile] = useState(false);
+    const [showTrackSelector, setShowTrackSelector] = useState(false);
     const [trackVisibility, setTrackVisibility] = useState<Map<number, boolean>>(new Map());
     const [initialRegion, setInitialRegion] = useState<
         | {
@@ -325,18 +327,23 @@ export default function MapScreen() {
             newMap.set(trackIndex, isVisible);
             return newMap;
         });
+    };
 
-        // Filter tracks to show only visible ones
-        const visibleTracks = tracks.filter((_, index) => {
-            const visibility = trackVisibility.get(index);
-            return visibility !== false && (index === trackIndex ? isVisible : true);
-        });
-
-        // Update map with filtered tracks
-        if (mapRef.current) {
-            mapRef.current.setGPXData(visibleTracks, waypoints);
+    const toggleTrackSelector = () => {
+        if (tracks.length > 1) {
+            setShowTrackSelector(!showTrackSelector);
+        } else {
+            Alert.alert('Selezione Tracce', 'Carica più file GPX per selezionare diverse tracce.', [
+                { text: 'OK' },
+            ]);
         }
     };
+
+    // Filter tracks based on visibility
+    const visibleTracks = tracks.filter((_, index) => {
+        const visibility = trackVisibility.get(index);
+        return visibility !== false; // Show track if visibility is not explicitly false
+    });
 
     return (
         <ThemedView style={styles.container}>
@@ -345,11 +352,20 @@ export default function MapScreen() {
             </ThemedView>
 
             <View style={styles.mapContainer}>
+                {/* Overlay per chiudere il menu tracce quando si tocca fuori */}
+                {showTrackSelector && (
+                    <TouchableOpacity
+                        style={styles.trackSelectorOverlay}
+                        onPress={() => setShowTrackSelector(false)}
+                        activeOpacity={1}
+                    />
+                )}
+
                 <GPXMapLeaflet
                     ref={mapRef}
                     style={styles.map}
                     initialRegion={initialRegion}
-                    tracks={tracks}
+                    tracks={visibleTracks}
                     waypoints={waypoints}
                     onMapPress={handleMapPress}
                     osmProvider={settings.osmProvider}
@@ -362,6 +378,21 @@ export default function MapScreen() {
                 >
                     <ThemedText style={styles.floatingLocationText}>📍</ThemedText>
                 </TouchableOpacity>
+
+                {/* Pulsante floating per il selettore tracce */}
+                {tracks.length > 1 && (
+                    <TouchableOpacity
+                        style={[
+                            styles.floatingTrackSelectorButton,
+                            showTrackSelector && styles.floatingTrackSelectorButtonActive,
+                        ]}
+                        onPress={toggleTrackSelector}
+                    >
+                        <ThemedText style={styles.floatingTrackSelectorText}>
+                            {showTrackSelector ? '📂' : '📁'}
+                        </ThemedText>
+                    </TouchableOpacity>
+                )}
 
                 {/* Pulsante floating per il profilo altimetrico */}
                 {tracks.length > 0 && (
@@ -377,6 +408,40 @@ export default function MapScreen() {
                         </ThemedText>
                     </TouchableOpacity>
                 )}
+
+                {/* Menu a tendina per la selezione tracce */}
+                {showTrackSelector && tracks.length > 1 && (
+                    <View style={styles.trackSelectorDropdown}>
+                        <Text style={styles.trackSelectorTitle}>Seleziona Tracce:</Text>
+                        {tracks.map((track, index) => (
+                            <TouchableOpacity
+                                key={index}
+                                style={[
+                                    styles.trackSelectorItem,
+                                    trackVisibility.get(index) !== false &&
+                                        styles.trackSelectorItemActive,
+                                ]}
+                                onPress={() =>
+                                    handleTrackVisibilityChange(
+                                        index,
+                                        trackVisibility.get(index) === false
+                                    )
+                                }
+                            >
+                                <Text
+                                    style={[
+                                        styles.trackSelectorItemText,
+                                        trackVisibility.get(index) !== false &&
+                                            styles.trackSelectorItemTextActive,
+                                    ]}
+                                >
+                                    {trackVisibility.get(index) !== false ? '✅' : '❌'}{' '}
+                                    {track.name || `Traccia ${index + 1}`}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
             </View>
 
             {/* Profilo altimetrico integrato */}
@@ -384,9 +449,10 @@ export default function MapScreen() {
                 <View style={styles.elevationContainer}>
                     <ElevationProfile
                         tracks={tracks}
+                        trackVisibility={trackVisibility}
                         onPointHover={handleElevationPointHover}
                         onTrackVisibilityChange={handleTrackVisibilityChange}
-                        height={180}
+                        height={160}
                     />
                 </View>
             )}
@@ -480,6 +546,83 @@ const styles = StyleSheet.create({
     floatingElevationText: {
         fontSize: 20,
         color: 'white',
+    },
+    floatingTrackSelectorButton: {
+        position: 'absolute',
+        bottom: 136, // Sopra il pulsante elevazione
+        right: 16,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'rgba(168, 85, 247, 0.9)', // Viola semi-trasparente
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 8, // Android shadow
+        shadowColor: '#000', // iOS shadow
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+    },
+    floatingTrackSelectorButtonActive: {
+        backgroundColor: 'rgba(168, 85, 247, 1)', // Viola pieno quando attivo
+    },
+    floatingTrackSelectorText: {
+        fontSize: 20,
+        color: 'white',
+    },
+    trackSelectorDropdown: {
+        position: 'absolute',
+        top: 16,
+        right: 16,
+        backgroundColor: 'white',
+        borderRadius: 12,
+        padding: 12,
+        minWidth: 200,
+        maxHeight: 300,
+        elevation: 8, // Android shadow
+        shadowColor: '#000', // iOS shadow
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        zIndex: 2, // Above overlay
+    },
+    trackSelectorTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#374151',
+        marginBottom: 12,
+        textAlign: 'center',
+    },
+    trackSelectorItem: {
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        marginVertical: 2,
+        borderRadius: 8,
+        backgroundColor: '#F3F4F6',
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+    },
+    trackSelectorItemActive: {
+        backgroundColor: '#DBEAFE',
+        borderColor: '#3B82F6',
+    },
+    trackSelectorItemText: {
+        fontSize: 12,
+        color: '#6B7280',
+        fontWeight: '500',
+    },
+    trackSelectorItemTextActive: {
+        color: '#1E40AF',
+        fontWeight: '600',
+    },
+    trackSelectorOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'transparent',
+        zIndex: 1,
     },
     elevationContainer: {
         margin: 8,

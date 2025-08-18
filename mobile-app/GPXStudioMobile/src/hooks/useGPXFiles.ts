@@ -51,9 +51,9 @@ export function useGPXFiles(): UseGPXFilesResult {
 
                 setFiles((prev) => [...prev, ...newFiles]);
 
-                // Auto-parse the first file
-                if (newFiles.length > 0) {
-                    await parseFile(newFiles[0]);
+                // Auto-parse all selected files
+                for (const file of newFiles) {
+                    await parseFile(file);
                 }
             }
         } catch (err) {
