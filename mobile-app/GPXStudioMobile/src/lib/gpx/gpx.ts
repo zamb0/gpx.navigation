@@ -1,4 +1,3 @@
-// @ts-ignore - Temporary fix for circular dependency
 import { ramerDouglasPeucker } from './simplify';
 import {
     Coordinates,

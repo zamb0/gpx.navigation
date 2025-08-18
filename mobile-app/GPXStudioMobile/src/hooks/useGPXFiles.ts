@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { parseGPX } from '../lib/gpx';
-import type { GPXFile as GPXFileClass } from '../lib/gpx/gpx';
+import { parseGPX } from '@/src/lib';
+import type { GPXFile as GPXFileClass } from '@/src/lib';
 
 export interface GPXFile {
     id: string;

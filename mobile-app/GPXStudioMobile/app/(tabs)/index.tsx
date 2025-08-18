@@ -4,13 +4,17 @@ import * as Location from 'expo-location';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import GPXMapLeaflet, { LeafletGPXTrack, LeafletGPXWaypoint } from '@/src/components/GPXMapLeaflet';
+import GPXMapLeaflet, {
+    LeafletGPXTrack,
+    LeafletGPXWaypoint,
+    GPXMapLeafletRef,
+} from '@/src/components/GPXMapLeaflet';
 import ElevationProfile from '@/src/components/ElevationProfile';
 import { useGPXContext } from '@/src/context/GPXContext';
 import { useSettings } from '@/src/context/AppSettingsContext';
 
 export default function MapScreen() {
-    const { files, getAllTracks, getAllWaypoints } = useGPXContext();
+    const { files, getAllTracks, getAllWaypoints, getVisibleWaypoints } = useGPXContext();
     const { settings } = useSettings();
 
     const [tracks, setTracks] = useState<LeafletGPXTrack[]>([]);
@@ -28,7 +32,11 @@ export default function MapScreen() {
           }
         | undefined
     >(undefined);
-    const mapRef = useRef<any>(null);
+    const [userLocationForMarker, setUserLocationForMarker] = useState<{
+        latitude: number;
+        longitude: number;
+    } | null>(null);
+    const mapRef = useRef<GPXMapLeafletRef>(null);
 
     // Get initial user location on component mount
     useEffect(() => {
@@ -66,6 +74,8 @@ export default function MapScreen() {
                             latitudeDelta: 0.02,
                             longitudeDelta: 0.02,
                         });
+                        // Salva la posizione per mostrare il marker quando la mappa è pronta
+                        setUserLocationForMarker({ latitude, longitude });
                         setIsLoadingLocation(false); // Ferma il loading immediatamente
 
                         // 🔄 BACKGROUND UPDATE: Ora prova a ottenere posizione più accurata in background
@@ -102,6 +112,8 @@ export default function MapScreen() {
                                     latitudeDelta: 0.02,
                                     longitudeDelta: 0.02,
                                 });
+                                // Aggiorna anche la posizione per il marker
+                                setUserLocationForMarker({ latitude: newLat, longitude: newLng });
                             } else {
                                 console.log(
                                     `📍 Posizione stabile (±${Math.round(
@@ -156,6 +168,8 @@ export default function MapScreen() {
                         latitudeDelta: 0.02,
                         longitudeDelta: 0.02,
                     });
+                    // Salva la posizione per mostrare il marker quando la mappa è pronta
+                    setUserLocationForMarker({ latitude, longitude });
                     setIsLoadingLocation(false);
                     clearTimeout(globalTimeout);
                 } catch (quickError) {
@@ -181,6 +195,8 @@ export default function MapScreen() {
                             latitudeDelta: 0.02,
                             longitudeDelta: 0.02,
                         });
+                        // Salva la posizione per mostrare il marker quando la mappa è pronta
+                        setUserLocationForMarker({ latitude, longitude });
                         setIsLoadingLocation(false);
                         clearTimeout(globalTimeout);
                     } catch (finalError) {
@@ -197,6 +213,26 @@ export default function MapScreen() {
 
         getInitialLocation();
     }, []);
+
+    // Mostra il marker della posizione utente non appena abbiamo la posizione e la mappa è pronta
+    useEffect(() => {
+        if (userLocationForMarker && mapRef.current) {
+            console.log(
+                '🎯 Mostrando marker della posizione utente immediatamente:',
+                userLocationForMarker
+            );
+            // Aspetta un breve momento per assicurarsi che il WebView sia completamente caricato
+            setTimeout(() => {
+                if (mapRef.current && userLocationForMarker) {
+                    mapRef.current.showUserLocationMarker(
+                        userLocationForMarker.latitude,
+                        userLocationForMarker.longitude
+                    );
+                    console.log('✅ Marker della posizione utente inviato al WebView');
+                }
+            }, 100); // Delay molto breve per assicurarsi che il WebView sia pronto
+        }
+    }, [userLocationForMarker]);
 
     // Mostra automaticamente la posizione utente quando la mappa è pronta e abbiamo l'initial region
     // MA SOLO se non ci sono tracciati GPX caricati
@@ -237,31 +273,13 @@ export default function MapScreen() {
     useEffect(() => {
         if (files.length > 0) {
             const gpxTracks = getAllTracks();
-            const gpxWaypoints = getAllWaypoints();
 
-            // Map GPX tracks to Leaflet format
-            const leafletTracks: LeafletGPXTrack[] = gpxTracks.map((track) => ({
-                name: track.name || 'Unnamed Track',
-                coordinates: track.coordinates,
-                color: track.color,
-            }));
-
-            // Map GPX waypoints to Leaflet format
-            const leafletWaypoints: LeafletGPXWaypoint[] = gpxWaypoints.map((waypoint) => ({
-                name: waypoint.name || 'Unnamed Waypoint',
-                latitude: waypoint.latitude,
-                longitude: waypoint.longitude,
-                description: waypoint.description,
-                symbol: waypoint.symbol,
-                type: waypoint.type,
-            }));
-
-            setTracks(leafletTracks);
-            setWaypoints(leafletWaypoints);
+            // Data is already in the correct LeafletGPX format from adapters
+            setTracks(gpxTracks);
 
             // Initialize track visibility - all tracks visible by default
             const visibility = new Map<number, boolean>();
-            leafletTracks.forEach((_, index) => {
+            gpxTracks.forEach((_, index) => {
                 visibility.set(index, true);
             });
             setTrackVisibility(visibility);
@@ -271,7 +289,13 @@ export default function MapScreen() {
             setWaypoints([]);
             setTrackVisibility(new Map());
         }
-    }, [files, getAllTracks, getAllWaypoints]);
+    }, [files, getAllTracks]);
+
+    // Update waypoints when track visibility changes
+    useEffect(() => {
+        const gpxWaypoints = getVisibleWaypoints(trackVisibility);
+        setWaypoints(gpxWaypoints);
+    }, [files, trackVisibility, getVisibleWaypoints]);
 
     const handleMapPress = (coordinate: { latitude: number; longitude: number }) => {
         Alert.alert(

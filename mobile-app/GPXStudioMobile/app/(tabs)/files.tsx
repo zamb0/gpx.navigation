@@ -20,23 +20,14 @@ export default function FilesScreen() {
     return (
         <ThemedView style={styles.container}>
             <ThemedView style={styles.header}>
-                <ThemedText type="title">My GPX Files</ThemedText>
-                <ThemedText type="subtitle">Import, manage and organize your tracks</ThemedText>
+                <ThemedText type="title">gpx files</ThemedText>
+                {/* <ThemedText type="subtitle">Import, manage and organize your tracks</ThemedText> */}
             </ThemedView>
 
             <ScrollView style={styles.content}>
                 {/* Waypoint Legend - mostra solo se ci sono waypoint caricati */}
                 {files.some((f) => f.data && f.data.wpt && f.data.wpt.length > 0) && (
-                    <WaypointLegend
-                        usedTypes={files.flatMap(
-                            (f) =>
-                                f.data?.wpt?.map((w) => ({
-                                    type: w.type,
-                                    symbol: w.sym,
-                                    name: w.name,
-                                })) || []
-                        )}
-                    />
+                    <WaypointLegend />
                 )}
 
                 <ThemedView style={styles.section}>

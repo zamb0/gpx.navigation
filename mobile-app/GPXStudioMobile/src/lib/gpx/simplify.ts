@@ -1,4 +1,3 @@
-// @ts-ignore - Temporary fix for circular dependency warning
 import { TrackPoint } from './gpx';
 import { Coordinates } from './types';
 

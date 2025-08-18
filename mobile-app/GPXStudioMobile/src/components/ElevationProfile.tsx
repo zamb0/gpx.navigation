@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Svg, Path, Line, Circle, Text as SvgText, Rect } from 'react-native-svg';
 import { LeafletGPXTrack } from './GPXMapLeaflet';
-import { TrackSegment, TrackPoint } from '../lib/gpx/gpx';
+import { TrackSegment, TrackPoint } from '@/src/lib';
 
 interface ElevationProfileProps {
     tracks: LeafletGPXTrack[];

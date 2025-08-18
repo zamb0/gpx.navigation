@@ -38,6 +38,7 @@ export interface GPXMapLeafletRef {
     requestUserLocation: () => void;
     centerOnLastKnownLocation: () => void;
     centerOnCoordinate: (latitude: number, longitude: number) => void;
+    showUserLocationMarker: (latitude: number, longitude: number) => void;
     showElevationMarker: (
         latitude: number,
         longitude: number,
@@ -159,6 +160,21 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
                     webViewRef.current.postMessage(
                         JSON.stringify({
                             type: 'centerOnLocation',
+                            latitude,
+                            longitude,
+                        })
+                    );
+                }
+            },
+            showUserLocationMarker: (latitude: number, longitude: number) => {
+                console.log('showUserLocationMarker chiamato per:', latitude, longitude);
+                // Salva la posizione corrente nello stato
+                setCurrentUserLocation({ latitude, longitude });
+
+                if (webViewRef.current) {
+                    webViewRef.current.postMessage(
+                        JSON.stringify({
+                            type: 'updateUserMarkerOnly',
                             latitude,
                             longitude,
                         })

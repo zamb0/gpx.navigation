@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useGPXFiles, GPXFile } from '../hooks/useGPXFiles';
-import { convertGPXToMapData } from '../utils/gpxConverter';
-import type { GPXTrack, GPXWaypoint as MapWaypoint } from '../components/GPXMap';
+import { useGPXFiles, GPXFile } from '@/src/hooks/useGPXFiles';
+import { convertGPXToMapData } from '@/src/lib/gpx-adapters/mappers';
+import type { LeafletGPXTrack, LeafletGPXWaypoint } from '@/src/lib/gpx-adapters/types';
 
 interface GPXContextType {
     files: GPXFile[];
@@ -10,8 +10,9 @@ interface GPXContextType {
     pickFile: () => Promise<void>;
     removeFile: (id: string) => void;
     clearAll: () => void;
-    getAllTracks: () => GPXTrack[];
-    getAllWaypoints: () => MapWaypoint[];
+    getAllTracks: () => LeafletGPXTrack[];
+    getAllWaypoints: () => LeafletGPXWaypoint[];
+    getVisibleWaypoints: (trackVisibility?: Map<number, boolean>) => LeafletGPXWaypoint[];
     getActiveFile: () => GPXFile | null;
 }
 
@@ -20,9 +21,9 @@ const GPXContext = createContext<GPXContextType | null>(null);
 export function GPXProvider({ children }: { children: ReactNode }) {
     const gpxFiles = useGPXFiles();
 
-    const getAllTracks = (): GPXTrack[] => {
+    const getAllTracks = (): LeafletGPXTrack[] => {
         try {
-            const allTracks: GPXTrack[] = [];
+            const allTracks: LeafletGPXTrack[] = [];
 
             if (!gpxFiles.files || !Array.isArray(gpxFiles.files)) {
                 return [];
@@ -31,7 +32,7 @@ export function GPXProvider({ children }: { children: ReactNode }) {
             gpxFiles.files.forEach((file, fileIndex) => {
                 if (file.data) {
                     try {
-                        const { tracks } = convertGPXToMapData(file.data);
+                        const { tracks, waypoints } = convertGPXToMapData(file.data, fileIndex);
                         if (tracks && Array.isArray(tracks)) {
                             // Prefix track IDs with file index to avoid conflicts
                             const prefixedTracks = tracks.map((track) => ({
@@ -54,9 +55,9 @@ export function GPXProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const getAllWaypoints = (): MapWaypoint[] => {
+    const getAllWaypoints = (): LeafletGPXWaypoint[] => {
         try {
-            const allWaypoints: MapWaypoint[] = [];
+            const allWaypoints: LeafletGPXWaypoint[] = [];
 
             if (!gpxFiles.files || !Array.isArray(gpxFiles.files)) {
                 return [];
@@ -65,7 +66,7 @@ export function GPXProvider({ children }: { children: ReactNode }) {
             gpxFiles.files.forEach((file, fileIndex) => {
                 if (file.data) {
                     try {
-                        const { waypoints } = convertGPXToMapData(file.data);
+                        const { waypoints } = convertGPXToMapData(file.data, fileIndex);
                         if (waypoints && Array.isArray(waypoints)) {
                             // Prefix waypoint IDs with file index to avoid conflicts
                             const prefixedWaypoints = waypoints.map((waypoint) => ({
@@ -88,6 +89,52 @@ export function GPXProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const getVisibleWaypoints = (trackVisibility?: Map<number, boolean>): LeafletGPXWaypoint[] => {
+        try {
+            if (!trackVisibility || trackVisibility.size === 0) {
+                // If no visibility map provided, return all waypoints
+                return getAllWaypoints();
+            }
+
+            const allWaypoints = getAllWaypoints();
+            const allTracks = getAllTracks();
+
+            // Create a map of fileIndex to whether that file has any visible tracks
+            const fileVisibilityMap = new Map<number, boolean>();
+
+            allTracks.forEach((track, trackIndex) => {
+                const isTrackVisible = trackVisibility.get(trackIndex) !== false;
+
+                // Extract fileIndex from track ID (format: "file-{fileIndex}-track-{trackIndex}")
+                const fileIndexMatch = track.id.match(/^file-(\d+)-/);
+                if (fileIndexMatch) {
+                    const fileIndex = parseInt(fileIndexMatch[1], 10);
+
+                    // If any track from this file is visible, mark the file as visible
+                    if (isTrackVisible) {
+                        fileVisibilityMap.set(fileIndex, true);
+                    } else if (!fileVisibilityMap.has(fileIndex)) {
+                        // Only set to false if not already set to true
+                        fileVisibilityMap.set(fileIndex, false);
+                    }
+                }
+            });
+
+            // Filter waypoints based on their file visibility
+            return allWaypoints.filter((waypoint) => {
+                if (waypoint.fileIndex === undefined) {
+                    // If fileIndex is not set, show the waypoint by default
+                    return true;
+                }
+
+                return fileVisibilityMap.get(waypoint.fileIndex) === true;
+            });
+        } catch (err) {
+            console.error('Error in getVisibleWaypoints:', err);
+            return getAllWaypoints();
+        }
+    };
+
     const getActiveFile = (): GPXFile | null => {
         try {
             // Return the most recently loaded file with data
@@ -103,6 +150,7 @@ export function GPXProvider({ children }: { children: ReactNode }) {
         ...gpxFiles,
         getAllTracks,
         getAllWaypoints,
+        getVisibleWaypoints,
         getActiveFile,
     };
 
