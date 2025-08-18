@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="GPX.Studio Mobile Test" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Test Elevation Profile</name>
+    <desc>Tracciato di test per il profilo altimetrico - Sentiero montano con dislivello significativo</desc>
+    <time>2025-08-15T10:00:00Z</time>
+  </metadata>
+  <trk>
+    <name>Ascesa Monte Test</name>
+    <desc>Tracciato di esempio con dati altimetrici realistici</desc>
+    <trkseg>
+      <!-- Partenza - valle -->
+      <trkpt lat="41.9000" lon="12.5000">
+        <ele>450</ele>
+        <time>2025-08-15T10:00:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9005" lon="12.5010">
+        <ele>465</ele>
+        <time>2025-08-15T10:02:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9010" lon="12.5020">
+        <ele>485</ele>
+        <time>2025-08-15T10:04:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9015" lon="12.5030">
+        <ele>510</ele>
+        <time>2025-08-15T10:06:00Z</time>
+      </trkpt>
+      
+      <!-- Salita costante -->
+      <trkpt lat="41.9020" lon="12.5040">
+        <ele>540</ele>
+        <time>2025-08-15T10:08:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9025" lon="12.5050">
+        <ele>575</ele>
+        <time>2025-08-15T10:10:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9030" lon="12.5060">
+        <ele>615</ele>
+        <time>2025-08-15T10:12:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9035" lon="12.5070">
+        <ele>660</ele>
+        <time>2025-08-15T10:14:00Z</time>
+      </trkpt>
+      
+      <!-- Tratto più ripido -->
+      <trkpt lat="41.9040" lon="12.5080">
+        <ele>720</ele>
+        <time>2025-08-15T10:16:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9045" lon="12.5090">
+        <ele>790</ele>
+        <time>2025-08-15T10:18:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9050" lon="12.5100">
+        <ele>870</ele>
+        <time>2025-08-15T10:20:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9055" lon="12.5110">
+        <ele>950</ele>
+        <time>2025-08-15T10:22:00Z</time>
+      </trkpt>
+      
+      <!-- Pausa in pianoro -->
+      <trkpt lat="41.9060" lon="12.5120">
+        <ele>965</ele>
+        <time>2025-08-15T10:24:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9065" lon="12.5130">
+        <ele>970</ele>
+        <time>2025-08-15T10:26:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9070" lon="12.5140">
+        <ele>975</ele>
+        <time>2025-08-15T10:28:00Z</time>
+      </trkpt>
+      
+      <!-- Ultimo tratto verso la vetta -->
+      <trkpt lat="41.9075" lon="12.5150">
+        <ele>1020</ele>
+        <time>2025-08-15T10:30:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9080" lon="12.5160">
+        <ele>1080</ele>
+        <time>2025-08-15T10:32:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9085" lon="12.5170">
+        <ele>1150</ele>
+        <time>2025-08-15T10:34:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9090" lon="12.5180">
+        <ele>1230</ele>
+        <time>2025-08-15T10:36:00Z</time>
+      </trkpt>
+      
+      <!-- Vetta! -->
+      <trkpt lat="41.9095" lon="12.5190">
+        <ele>1320</ele>
+        <time>2025-08-15T10:38:00Z</time>
+      </trkpt>
+      
+      <!-- Breve discesa dal lato opposto -->
+      <trkpt lat="41.9100" lon="12.5200">
+        <ele>1280</ele>
+        <time>2025-08-15T10:40:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9105" lon="12.5210">
+        <ele>1220</ele>
+        <time>2025-08-15T10:42:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9110" lon="12.5220">
+        <ele>1150</ele>
+        <time>2025-08-15T10:44:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9115" lon="12.5230">
+        <ele>1080</ele>
+        <time>2025-08-15T10:46:00Z</time>
+      </trkpt>
+      <trkpt lat="41.9120" lon="12.5240">
+        <ele>1020</ele>
+        <time>2025-08-15T10:48:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+  
+  <!-- Waypoints significativi -->
+  <wpt lat="41.9000" lon="12.5000">
+    <ele>450</ele>
+    <name>Partenza</name>
+    <desc>Punto di partenza dell'escursione</desc>
+    <sym>flag</sym>
+    <type>start</type>
+  </wpt>
+  
+  <wpt lat="41.9060" lon="12.5120">
+    <ele>965</ele>
+    <name>Rifugio Panorama</name>
+    <desc>Sosta panoramica intermedia</desc>
+    <sym>lodge</sym>
+    <type>shelter</type>
+  </wpt>
+  
+  <wpt lat="41.9095" lon="12.5190">
+    <ele>1320</ele>
+    <name>Vetta Monte Test</name>
+    <desc>Punto più alto del percorso - Vista spettacolare!</desc>
+    <sym>summit</sym>
+    <type>summit</type>
+  </wpt>
+  
+  <wpt lat="41.9120" lon="12.5240">
+    <ele>1020</ele>
+    <name>Punto Arrivo</name>
+    <desc>Fine del tracciato di esempio</desc>
+    <sym>flag</sym>
+    <type>finish</type>
+  </wpt>
+</gpx>
