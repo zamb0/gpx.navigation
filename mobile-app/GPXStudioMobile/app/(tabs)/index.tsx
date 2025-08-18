@@ -33,12 +33,6 @@ export default function MapScreen() {
     // Get initial user location on component mount
     useEffect(() => {
         const getInitialLocation = async () => {
-            // Timeout globale per l'intera operazione di geolocalizzazione
-            const globalTimeout = setTimeout(() => {
-                console.log('Timeout globale raggiunto, usando posizione di default');
-                setIsLoadingLocation(false);
-            }, 2000); // Ridotto a 2 secondi per garantire il puntino entro 2s
-
             try {
                 console.log('Tentando di ottenere la posizione iniziale...');
 
@@ -46,24 +40,25 @@ export default function MapScreen() {
                 const { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
                     console.log('Permessi negati, usando posizione di default (Roma)');
-                    clearTimeout(globalTimeout);
                     setIsLoadingLocation(false);
                     return;
                 }
 
-                // Prima prova: posizione velocissima con accuratezza minima
+                // 🚀 INSTANT RESPONSE: Mostra immediatamente l'ultima posizione conosciuta
+                console.log('Controllo ultima posizione conosciuta per risposta immediata...');
                 try {
-                    console.log('Tentativo 1: posizione ultra-veloce...');
-
-                    // Prova prima con l'ultima posizione conosciuta (istantanea se disponibile)
                     const lastKnownLocation = await Location.getLastKnownPositionAsync({
-                        maxAge: 300000, // Accetta posizioni fino a 5 minuti fa
-                        requiredAccuracy: 1000, // Accetta anche bassa accuratezza
+                        maxAge: 600000, // Accetta posizioni fino a 10 minuti fa per massima copertura
+                        requiredAccuracy: 2000, // Accetta anche bassa accuratezza per avere subito qualcosa
                     });
 
                     if (lastKnownLocation) {
                         const { latitude, longitude } = lastKnownLocation.coords;
-                        console.log('Ultima posizione conosciuta trovata:', latitude, longitude);
+                        console.log(
+                            '✅ Ultima posizione mostrata IMMEDIATAMENTE:',
+                            latitude,
+                            longitude
+                        );
 
                         setInitialRegion({
                             latitude,
@@ -71,28 +66,89 @@ export default function MapScreen() {
                             latitudeDelta: 0.02,
                             longitudeDelta: 0.02,
                         });
-                        setIsLoadingLocation(false);
-                        clearTimeout(globalTimeout);
+                        setIsLoadingLocation(false); // Ferma il loading immediatamente
 
-                        return; // Exit early con successo
+                        // 🔄 BACKGROUND UPDATE: Ora prova a ottenere posizione più accurata in background
+                        console.log('⏱️ Avvio aggiornamento posizione in background...');
+
+                        // Timeout per operazione background (non blocca l'UI)
+                        const backgroundTimeout = setTimeout(() => {
+                            console.log(
+                                "Timeout background raggiunto, manteniamo l'ultima posizione"
+                            );
+                        }, 3000);
+
+                        try {
+                            const currentLocation = await Location.getCurrentPositionAsync({
+                                accuracy: Location.Accuracy.Balanced,
+                                timeInterval: 2000,
+                                distanceInterval: 100,
+                            });
+
+                            const { latitude: newLat, longitude: newLng } = currentLocation.coords;
+                            console.log('✅ Posizione aggiornata in background:', newLat, newLng);
+
+                            // Aggiorna solo se la differenza è significativa (>50m)
+                            const distance = calculateDistance(latitude, longitude, newLat, newLng);
+                            if (distance > 50) {
+                                console.log(
+                                    `📍 Aggiornamento significativo (+${Math.round(
+                                        distance
+                                    )}m), aggiorno mappa`
+                                );
+                                setInitialRegion({
+                                    latitude: newLat,
+                                    longitude: newLng,
+                                    latitudeDelta: 0.02,
+                                    longitudeDelta: 0.02,
+                                });
+                            } else {
+                                console.log(
+                                    `📍 Posizione stabile (±${Math.round(
+                                        distance
+                                    )}m), nessun aggiornamento necessario`
+                                );
+                            }
+
+                            clearTimeout(backgroundTimeout);
+                        } catch (backgroundError) {
+                            console.log(
+                                "Aggiornamento background fallito, manteniamo l'ultima posizione:",
+                                backgroundError
+                            );
+                            clearTimeout(backgroundTimeout);
+                        }
+
+                        return; // Exit early con successo - abbiamo già mostrato la posizione
                     }
+                } catch (lastKnownError) {
+                    console.log(
+                        'Nessuna ultima posizione disponibile, procedo con posizione corrente'
+                    );
+                }
 
-                    // Se non c'è ultima posizione, prova posizione veloce con timeout aggressivo
-                    console.log('Nessuna posizione conosciuta, richiedendo nuova posizione...');
+                // 📍 FALLBACK: Se non c'è ultima posizione, usa il metodo esistente ma con timeout più lungo
+                console.log('🔍 Nessuna posizione precedente, richiedendo posizione corrente...');
+
+                const globalTimeout = setTimeout(() => {
+                    console.log('Timeout globale raggiunto, usando posizione di default');
+                    setIsLoadingLocation(false);
+                }, 4000); // Timeout più lungo dato che non abbiamo alternative
+
+                try {
                     const quickLocation = (await Promise.race([
                         Location.getCurrentPositionAsync({
-                            accuracy: Location.Accuracy.Lowest, // Ancora più bassa
-                            timeInterval: 1500, // Ridotto a 1.5 secondi
-                            distanceInterval: 2000, // Tolleranza molto alta
+                            accuracy: Location.Accuracy.Lowest,
+                            timeInterval: 2000,
+                            distanceInterval: 2000,
                         }),
-                        new Promise(
-                            (_, reject) =>
-                                setTimeout(() => reject(new Error('Quick timeout')), 1800) // Timeout a 1.8s
+                        new Promise((_, reject) =>
+                            setTimeout(() => reject(new Error('Quick timeout')), 3000)
                         ),
                     ])) as Location.LocationObject;
 
                     const { latitude, longitude } = quickLocation.coords;
-                    console.log('Posizione veloce ottenuta:', latitude, longitude);
+                    console.log('✅ Posizione corrente ottenuta:', latitude, longitude);
 
                     setInitialRegion({
                         latitude,
@@ -103,25 +159,21 @@ export default function MapScreen() {
                     setIsLoadingLocation(false);
                     clearTimeout(globalTimeout);
                 } catch (quickError) {
-                    console.log(
-                        'Fallback: tentativo con accuratezza standard con timeout ridotto...'
-                    );
-                    // Fallback finale con timeout molto breve
+                    console.log('Fallback finale con accuratezza standard...');
                     try {
                         const location = (await Promise.race([
                             Location.getCurrentPositionAsync({
                                 accuracy: Location.Accuracy.Low,
-                                timeInterval: 1800,
+                                timeInterval: 2000,
                                 distanceInterval: 500,
                             }),
-                            new Promise(
-                                (_, reject) =>
-                                    setTimeout(() => reject(new Error('Final timeout')), 2000) // Massimo 2s
+                            new Promise((_, reject) =>
+                                setTimeout(() => reject(new Error('Final timeout')), 3000)
                             ),
                         ])) as Location.LocationObject;
 
                         const { latitude, longitude } = location.coords;
-                        console.log('Posizione fallback ottenuta:', latitude, longitude);
+                        console.log('✅ Posizione fallback ottenuta:', latitude, longitude);
 
                         setInitialRegion({
                             latitude,
@@ -134,15 +186,12 @@ export default function MapScreen() {
                     } catch (finalError) {
                         console.log('Tutti i tentativi falliti, usando posizione di default');
                         clearTimeout(globalTimeout);
-                        // Non fare nulla, lascia che usi la posizione di default (Roma)
                         setIsLoadingLocation(false);
                     }
                 }
             } catch (error) {
                 console.log("Errore nell'ottenere la posizione iniziale:", error);
-                clearTimeout(globalTimeout);
-                setIsLoadingLocation(false); // Stop loading indicator anche in caso di errore
-                // Mantieni il comportamento di default se non riesce ad ottenere la posizione
+                setIsLoadingLocation(false);
             }
         };
 
