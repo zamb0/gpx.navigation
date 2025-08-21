@@ -1,22 +1,40 @@
 {
-    "extends": "expo/tsconfig.base",
-    "compilerOptions": {
-        "strict": true,
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["./*"],
-            "@/src/*": ["./src/*"],
-            "@/components/*": ["./components/*", "./src/components/*"],
-            "@/screens/*": ["./src/screens/*"],
-            "@/hooks/*": ["./hooks/*", "./src/hooks/*"],
-            "@/contexts/*": ["./src/contexts/*"],
-            "@/context/*": ["./src/context/*"],
-            "@/lib/*": ["./src/lib/*"],
-            "@/services/*": ["./src/services/*"],
-            "@/utils/*": ["./src/utils/*"],
-            "@/styles/*": ["./src/styles/*"],
-            "@/constants/*": ["./constants/*"]
-        }
-    },
-    "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/screens/*": [
+        "src/screens/*"
+      ],
+      "@/services/*": [
+        "src/services/*"
+      ],
+      "@/utils/*": [
+        "src/utils/*"
+      ],
+      "@/types/*": [
+        "src/types/*"
+      ],
+      "@/hooks/*": [
+        "src/hooks/*"
+      ],
+      "@/context/*": [
+        "src/context/*"
+      ],
+      "@/constants/*": [
+        "src/constants/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }

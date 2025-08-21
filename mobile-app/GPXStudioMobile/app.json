@@ -1,46 +1,93 @@
 {
-    "expo": {
-        "name": "gpx.navigate",
-        "slug": "gpx.navigate",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "icon": "./assets/images/icon.png",
-        "scheme": "gpx.navigate",
-        "userInterfaceStyle": "automatic",
-        "newArchEnabled": true,
-        "ios": {
-            "supportsTablet": true,
-            "infoPlist": {
-                "NSLocationWhenInUseUsageDescription": "This app needs access to location to show your position on the map and track GPX routes."
-            }
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/images/adaptive-icon.png",
-                "backgroundColor": "#ffffff"
-            },
-            "edgeToEdgeEnabled": true,
-            "permissions": ["ACCESS_COARSE_LOCATION", "ACCESS_FINE_LOCATION"]
-        },
-        "web": {
-            "bundler": "metro",
-            "output": "static",
-            "favicon": "./assets/images/favicon.png"
-        },
-        "plugins": [
-            "expo-router",
-            [
-                "expo-splash-screen",
-                {
-                    "image": "./assets/images/splash-icon.png",
-                    "imageWidth": 200,
-                    "resizeMode": "contain",
-                    "backgroundColor": "#ffffff"
-                }
-            ]
+  "expo": {
+    "name": "GPXStudioMobile",
+    "slug": "GPXStudioMobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gpxstudio.mobile",
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "This app needs access to location when open and in the background to record GPS tracks and provide navigation.",
+        "NSLocationWhenInUseUsageDescription": "This app needs access to location to show your position on the map and record GPS tracks.",
+        "NSLocationAlwaysUsageDescription": "This app needs background location access to continue recording GPS tracks when the app is not actively in use.",
+        "UIBackgroundModes": ["location", "background-processing"],
+        "NSUserActivityTypes": [
+          "INStartWorkoutIntent",
+          "INPauseWorkoutIntent",
+          "INEndWorkoutIntent"
         ],
-        "experiments": {
-            "typedRoutes": true
+        "NSSupportsLiveActivities": true
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.gpxstudio.mobile",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "FOREGROUND_SERVICE",
+        "WAKE_LOCK",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ],
+      "intentFilters": [
+        {
+          "action": "android.intent.action.VIEW",
+          "data": [
+            {
+              "scheme": "file",
+              "mimeType": "application/gpx+xml"
+            },
+            {
+              "scheme": "content",
+              "mimeType": "application/gpx+xml"
+            }
+          ],
+          "category": ["android.intent.category.DEFAULT"]
         }
-    }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "scheme": "gpxstudio",
+    "linking": {
+      "prefixes": ["gpxstudio://", "https://gpxstudio.app"]
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app needs access to location when open and in the background to record GPS tracks and provide navigation.",
+          "isIosBackgroundLocationEnabled": true,
+          "isAndroidBackgroundLocationEnabled": true
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#007AFF",
+          "sounds": []
+        }
+      ],
+      ["expo-task-manager", {}]
+    ]
+  }
 }
