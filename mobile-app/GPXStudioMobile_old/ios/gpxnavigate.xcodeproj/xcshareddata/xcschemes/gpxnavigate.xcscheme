@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "gpxnavigate.app"
-               BlueprintName = "gpxnavigate"
-               ReferencedContainer = "container:gpxnavigate.xcodeproj">
+               BuildableName = "GPXNavigate.app"
+               BlueprintName = "GPXNavigate"
+               ReferencedContainer = "container:GPXNavigate.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "gpxnavigateTests.xctest"
-               BlueprintName = "gpxnavigateTests"
-               ReferencedContainer = "container:gpxnavigate.xcodeproj">
+               BuildableName = "GPXNavigateTests.xctest"
+               BlueprintName = "GPXNavigateTests"
+               ReferencedContainer = "container:GPXNavigate.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "gpxnavigate.app"
-            BlueprintName = "gpxnavigate"
-            ReferencedContainer = "container:gpxnavigate.xcodeproj">
+            BuildableName = "GPXNavigate.app"
+            BlueprintName = "GPXNavigate"
+            ReferencedContainer = "container:GPXNavigate.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "gpxnavigate.app"
-            BlueprintName = "gpxnavigate"
-            ReferencedContainer = "container:gpxnavigate.xcodeproj">
+            BuildableName = "GPXNavigate.app"
+            BlueprintName = "GPXNavigate"
+            ReferencedContainer = "container:GPXNavigate.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
