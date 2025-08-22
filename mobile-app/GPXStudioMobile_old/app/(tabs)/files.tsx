@@ -5,9 +5,15 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useGPXContext } from '@/src/context/GPXContext';
 import WaypointLegend from '@/src/components/WaypointLegend';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function FilesScreen() {
     const { files, loading, error, pickFile, removeFile, clearAll } = useGPXContext();
+
+    const muteColor = useThemeColor({}, 'muted');
+    const primaryColor = useThemeColor({}, 'primary');
+    const dangerColor = useThemeColor({}, 'danger');
+    const borderColor = useThemeColor({}, 'border');
 
     const handleImportFile = async () => {
         try {
@@ -36,14 +42,25 @@ export default function FilesScreen() {
                             📁 Loaded Files ({files.length})
                         </ThemedText>
                         {files.length > 0 && (
-                            <TouchableOpacity onPress={clearAll} style={styles.clearButton}>
+                            <TouchableOpacity
+                                onPress={clearAll}
+                                style={[styles.clearButton, { backgroundColor: dangerColor }]}
+                            >
                                 <ThemedText style={styles.clearButtonText}>Clear All</ThemedText>
                             </TouchableOpacity>
                         )}
                     </View>
 
                     {files.length === 0 ? (
-                        <ThemedView style={styles.emptyState}>
+                        <ThemedView
+                            style={[
+                                styles.emptyState,
+                                {
+                                    backgroundColor: muteColor,
+                                    borderColor,
+                                },
+                            ]}
+                        >
                             <ThemedText style={styles.emptyText}>
                                 No GPX files loaded yet
                             </ThemedText>
@@ -53,7 +70,10 @@ export default function FilesScreen() {
                         </ThemedView>
                     ) : (
                         files.map((file) => (
-                            <ThemedView key={file.id} style={styles.fileItem}>
+                            <ThemedView
+                                key={file.id}
+                                style={[styles.fileItem, { backgroundColor: muteColor }]}
+                            >
                                 <View style={styles.fileInfo}>
                                     <ThemedText type="defaultSemiBold" numberOfLines={1}>
                                         {file.data ? '✅' : file.error ? '❌' : '⏳'} {file.name}
@@ -69,7 +89,9 @@ export default function FilesScreen() {
                                             </>
                                         )}
                                         {file.error && (
-                                            <ThemedText style={styles.errorText}>
+                                            <ThemedText
+                                                style={[styles.errorText, { color: dangerColor }]}
+                                            >
                                                 {' '}
                                                 • {file.error}
                                             </ThemedText>
@@ -80,7 +102,7 @@ export default function FilesScreen() {
                                     onPress={() => removeFile(file.id)}
                                     style={styles.deleteButton}
                                 >
-                                    <Ionicons name="trash-outline" size={20} color="#FF3B30" />
+                                    <Ionicons name="trash-outline" size={20} color={dangerColor} />
                                 </TouchableOpacity>
                             </ThemedView>
                         ))
@@ -90,19 +112,36 @@ export default function FilesScreen() {
                 <ThemedView style={styles.section}>
                     <ThemedText type="defaultSemiBold">⚡ Quick Actions</ThemedText>
                     <ThemedView style={styles.actionButtons}>
-                        <TouchableOpacity style={styles.actionButton} onPress={handleImportFile}>
-                            <Ionicons name="document-attach-outline" size={24} color="#007AFF" />
-                            <ThemedText style={styles.actionButtonText}>Import GPX File</ThemedText>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: muteColor }]}
+                            onPress={handleImportFile}
+                        >
+                            <Ionicons
+                                name="document-attach-outline"
+                                size={24}
+                                color={primaryColor}
+                            />
+                            <ThemedText style={[styles.actionButtonText, { color: primaryColor }]}>
+                                Import GPX File
+                            </ThemedText>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Ionicons name="cloud-upload-outline" size={24} color="#007AFF" />
-                            <ThemedText style={styles.actionButtonText}>Sync with Cloud</ThemedText>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: muteColor }]}
+                        >
+                            <Ionicons name="cloud-upload-outline" size={24} color={primaryColor} />
+                            <ThemedText style={[styles.actionButtonText, { color: primaryColor }]}>
+                                Sync with Cloud
+                            </ThemedText>
                         </TouchableOpacity>
 
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Ionicons name="link-outline" size={24} color="#007AFF" />
-                            <ThemedText style={styles.actionButtonText}>Import from URL</ThemedText>
+                        <TouchableOpacity
+                            style={[styles.actionButton, { backgroundColor: muteColor }]}
+                        >
+                            <Ionicons name="link-outline" size={24} color={primaryColor} />
+                            <ThemedText style={[styles.actionButtonText, { color: primaryColor }]}>
+                                Import from URL
+                            </ThemedText>
                         </TouchableOpacity>
                     </ThemedView>
                 </ThemedView>
@@ -136,11 +175,9 @@ const styles = StyleSheet.create({
     emptyState: {
         alignItems: 'center',
         padding: 40,
-        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 12,
         borderWidth: 2,
         borderStyle: 'dashed',
-        borderColor: '#ccc',
     },
     emptyText: {
         fontSize: 16,
@@ -155,17 +192,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 12,
         gap: 12,
     },
     actionButtonText: {
         fontSize: 16,
         fontWeight: '500',
-        color: '#007AFF',
     },
     clearButton: {
-        backgroundColor: '#FF3B30',
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 6,
@@ -179,7 +213,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
-        backgroundColor: 'rgba(0,0,0,0.05)',
         borderRadius: 12,
         marginBottom: 8,
     },
@@ -191,9 +224,7 @@ const styles = StyleSheet.create({
         opacity: 0.7,
         marginTop: 4,
     },
-    errorText: {
-        color: '#FF3B30',
-    },
+    errorText: {},
     deleteButton: {
         padding: 8,
         marginLeft: 8,

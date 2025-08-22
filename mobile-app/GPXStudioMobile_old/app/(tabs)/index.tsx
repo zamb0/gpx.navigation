@@ -12,10 +12,108 @@ import GPXMapLeaflet, {
 import ElevationProfile from '@/src/components/ElevationProfile';
 import { useGPXContext } from '@/src/context/GPXContext';
 import { useSettings } from '@/src/context/AppSettingsContext';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function MapScreen() {
     const { files, getAllTracks, getAllWaypoints, getVisibleWaypoints } = useGPXContext();
     const { settings } = useSettings();
+
+    const primaryColor = useThemeColor({}, 'primary');
+    const backgroundColor = useThemeColor({}, 'background');
+    const cardColor = useThemeColor({}, 'card');
+    const shadowColor = useThemeColor({}, 'shadow');
+    const locationButtonColor = useThemeColor({}, 'locationButton');
+    const locationButtonActiveColor = useThemeColor({}, 'locationButtonActive');
+    const elevationButtonColor = useThemeColor({}, 'elevationButton');
+    const elevationButtonActiveColor = useThemeColor({}, 'elevationButtonActive');
+    const trackButtonColor = useThemeColor({}, 'trackButton');
+    const trackButtonActiveColor = useThemeColor({}, 'trackButtonActive');
+    const buttonTextColor = useThemeColor({}, 'buttonText');
+    const modalBackgroundColor = useThemeColor({}, 'modalBackground');
+    const modalTextColor = useThemeColor({}, 'modalText');
+    const modalTrackColor = useThemeColor({}, 'modalTrack');
+    const trackSelectorBorderColor = useThemeColor({}, 'trackSelectorBorder');
+    const trackSelectorActiveBackgroundColor = useThemeColor({}, 'trackSelectorActiveBackground');
+    const trackSelectorActiveBorderColor = useThemeColor({}, 'trackSelectorActiveBorder');
+    const trackSelectorTextColor = useThemeColor({}, 'trackSelectorText');
+    const trackSelectorActiveTextColor = useThemeColor({}, 'trackSelectorActiveText');
+
+    // Stili dinamici per i pulsanti floating
+    const dynamicStyles = {
+        mapContainerStyle: {
+            ...styles.mapContainer,
+            shadowColor: shadowColor,
+        },
+        floatingLocationButtonStyle: {
+            ...styles.floatingLocationButton,
+            backgroundColor: locationButtonColor,
+            shadowColor: shadowColor,
+        },
+        floatingLocationTextStyle: {
+            ...styles.floatingLocationText,
+            color: buttonTextColor,
+        },
+        floatingElevationButtonStyle: {
+            ...styles.floatingElevationButton,
+            backgroundColor: elevationButtonColor,
+            shadowColor: shadowColor,
+        },
+        floatingElevationButtonActiveStyle: {
+            ...styles.floatingElevationButton,
+            backgroundColor: elevationButtonActiveColor,
+            shadowColor: shadowColor,
+        },
+        floatingElevationTextStyle: {
+            ...styles.floatingElevationText,
+            color: buttonTextColor,
+        },
+        floatingTrackSelectorButtonStyle: {
+            ...styles.floatingTrackSelectorButton,
+            backgroundColor: trackButtonColor,
+            shadowColor: shadowColor,
+        },
+        floatingTrackSelectorButtonActiveStyle: {
+            ...styles.floatingTrackSelectorButton,
+            backgroundColor: trackButtonActiveColor,
+            shadowColor: shadowColor,
+        },
+        floatingTrackSelectorTextStyle: {
+            ...styles.floatingTrackSelectorText,
+            color: buttonTextColor,
+        },
+        trackSelectorDropdownStyle: {
+            ...styles.trackSelectorDropdown,
+            backgroundColor: modalBackgroundColor,
+            shadowColor: shadowColor,
+        },
+        trackSelectorTitleStyle: {
+            ...styles.trackSelectorTitle,
+            color: modalTextColor,
+        },
+        trackSelectorItemStyle: {
+            ...styles.trackSelectorItem,
+            backgroundColor: modalTrackColor,
+            borderColor: trackSelectorBorderColor,
+        },
+        elevationContainerStyle: {
+            ...styles.elevationContainer,
+            backgroundColor: modalBackgroundColor,
+            shadowColor: shadowColor,
+        },
+        trackSelectorItemActiveStyle: {
+            ...styles.trackSelectorItemActive,
+            backgroundColor: trackSelectorActiveBackgroundColor,
+            borderColor: trackSelectorActiveBorderColor,
+        },
+        trackSelectorItemTextStyle: {
+            ...styles.trackSelectorItemText,
+            color: trackSelectorTextColor,
+        },
+        trackSelectorItemTextActiveStyle: {
+            ...styles.trackSelectorItemTextActive,
+            color: trackSelectorActiveTextColor,
+        },
+    };
 
     const [tracks, setTracks] = useState<LeafletGPXTrack[]>([]);
     const [waypoints, setWaypoints] = useState<LeafletGPXWaypoint[]>([]);
@@ -424,7 +522,7 @@ export default function MapScreen() {
                 <ThemedText type="title">gpx.navigate</ThemedText>
             </ThemedView>
 
-            <View style={styles.mapContainer}>
+            <View style={dynamicStyles.mapContainerStyle}>
                 {/* Overlay per chiudere il menu tracce quando si tocca fuori */}
                 {showTrackSelector && (
                     <TouchableOpacity
@@ -446,22 +544,23 @@ export default function MapScreen() {
 
                 {/* Pulsante floating per centrare sulla posizione utente */}
                 <TouchableOpacity
-                    style={styles.floatingLocationButton}
+                    style={dynamicStyles.floatingLocationButtonStyle}
                     onPress={requestLocationFromMap}
                 >
-                    <ThemedText style={styles.floatingLocationText}>📍</ThemedText>
+                    <ThemedText style={dynamicStyles.floatingLocationTextStyle}>📍</ThemedText>
                 </TouchableOpacity>
 
                 {/* Pulsante floating per il selettore tracce */}
                 {tracks.length > 1 && (
                     <TouchableOpacity
                         style={[
-                            styles.floatingTrackSelectorButton,
-                            showTrackSelector && styles.floatingTrackSelectorButtonActive,
+                            dynamicStyles.floatingTrackSelectorButtonStyle,
+                            showTrackSelector &&
+                                dynamicStyles.floatingTrackSelectorButtonActiveStyle,
                         ]}
                         onPress={toggleTrackSelector}
                     >
-                        <ThemedText style={styles.floatingTrackSelectorText}>
+                        <ThemedText style={dynamicStyles.floatingTrackSelectorTextStyle}>
                             {showTrackSelector ? '📂' : '📁'}
                         </ThemedText>
                     </TouchableOpacity>
@@ -471,12 +570,13 @@ export default function MapScreen() {
                 {tracks.length > 0 && (
                     <TouchableOpacity
                         style={[
-                            styles.floatingElevationButton,
-                            showElevationProfile && styles.floatingElevationButtonActive,
+                            dynamicStyles.floatingElevationButtonStyle,
+                            showElevationProfile &&
+                                dynamicStyles.floatingElevationButtonActiveStyle,
                         ]}
                         onPress={toggleElevationProfile}
                     >
-                        <ThemedText style={styles.floatingElevationText}>
+                        <ThemedText style={dynamicStyles.floatingElevationTextStyle}>
                             {showElevationProfile ? '📊' : '📈'}
                         </ThemedText>
                     </TouchableOpacity>
@@ -484,15 +584,15 @@ export default function MapScreen() {
 
                 {/* Menu a tendina per la selezione tracce */}
                 {showTrackSelector && tracks.length > 1 && (
-                    <View style={styles.trackSelectorDropdown}>
-                        <Text style={styles.trackSelectorTitle}>Seleziona Tracce:</Text>
+                    <View style={dynamicStyles.trackSelectorDropdownStyle}>
+                        <Text style={dynamicStyles.trackSelectorTitleStyle}>Seleziona Tracce:</Text>
                         {tracks.map((track, index) => (
                             <TouchableOpacity
                                 key={index}
                                 style={[
-                                    styles.trackSelectorItem,
+                                    dynamicStyles.trackSelectorItemStyle,
                                     trackVisibility.get(index) !== false &&
-                                        styles.trackSelectorItemActive,
+                                        dynamicStyles.trackSelectorItemActiveStyle,
                                 ]}
                                 onPress={() =>
                                     handleTrackVisibilityChange(
@@ -503,9 +603,9 @@ export default function MapScreen() {
                             >
                                 <Text
                                     style={[
-                                        styles.trackSelectorItemText,
+                                        dynamicStyles.trackSelectorItemTextStyle,
                                         trackVisibility.get(index) !== false &&
-                                            styles.trackSelectorItemTextActive,
+                                            dynamicStyles.trackSelectorItemTextActiveStyle,
                                     ]}
                                 >
                                     {trackVisibility.get(index) !== false ? '✅' : '❌'}{' '}
@@ -519,7 +619,7 @@ export default function MapScreen() {
 
             {/* Profilo altimetrico integrato */}
             {showElevationProfile && tracks.length > 0 && (
-                <View style={styles.elevationContainer}>
+                <View style={dynamicStyles.elevationContainerStyle}>
                     <ElevationProfile
                         tracks={tracks}
                         trackVisibility={trackVisibility}
@@ -564,7 +664,6 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         overflow: 'hidden',
         elevation: 5, // Android shadow
-        shadowColor: '#000', // iOS shadow
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
@@ -584,18 +683,15 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: 'rgba(0, 122, 255, 0.9)', // Blu semi-trasparente
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 8, // Android shadow
-        shadowColor: '#000', // iOS shadow
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
     },
     floatingLocationText: {
         fontSize: 20,
-        color: 'white',
     },
     floatingElevationButton: {
         position: 'absolute',
@@ -604,21 +700,18 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: 'rgba(34, 197, 94, 0.9)', // Verde semi-trasparente
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 8, // Android shadow
-        shadowColor: '#000', // iOS shadow
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
     },
     floatingElevationButtonActive: {
-        backgroundColor: 'rgba(34, 197, 94, 1)', // Verde pieno quando attivo
+        // Rimosso backgroundColor - ora dinamico
     },
     floatingElevationText: {
         fontSize: 20,
-        color: 'white',
     },
     floatingTrackSelectorButton: {
         position: 'absolute',
@@ -627,33 +720,28 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: 'rgba(168, 85, 247, 0.9)', // Viola semi-trasparente
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 8, // Android shadow
-        shadowColor: '#000', // iOS shadow
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
     },
     floatingTrackSelectorButtonActive: {
-        backgroundColor: 'rgba(168, 85, 247, 1)', // Viola pieno quando attivo
+        // Rimosso backgroundColor - ora dinamico
     },
     floatingTrackSelectorText: {
         fontSize: 20,
-        color: 'white',
     },
     trackSelectorDropdown: {
         position: 'absolute',
         top: 16,
         right: 16,
-        backgroundColor: 'white',
         borderRadius: 12,
         padding: 12,
         minWidth: 200,
         maxHeight: 300,
         elevation: 8, // Android shadow
-        shadowColor: '#000', // iOS shadow
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
         shadowRadius: 6,
@@ -662,7 +750,6 @@ const styles = StyleSheet.create({
     trackSelectorTitle: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#374151',
         marginBottom: 12,
         textAlign: 'center',
     },
@@ -671,21 +758,16 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         marginVertical: 2,
         borderRadius: 8,
-        backgroundColor: '#F3F4F6',
         borderWidth: 1,
-        borderColor: '#E5E7EB',
     },
     trackSelectorItemActive: {
-        backgroundColor: '#DBEAFE',
-        borderColor: '#3B82F6',
+        // Colori dinamici applicati tramite dynamicStyles
     },
     trackSelectorItemText: {
         fontSize: 12,
-        color: '#6B7280',
         fontWeight: '500',
     },
     trackSelectorItemTextActive: {
-        color: '#1E40AF',
         fontWeight: '600',
     },
     trackSelectorOverlay: {
@@ -704,11 +786,9 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         overflow: 'hidden',
         elevation: 4, // Shadow leggera
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 3,
-        backgroundColor: 'white',
     },
     bottomInfo: {
         padding: 8,

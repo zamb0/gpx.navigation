@@ -3,6 +3,7 @@ import { View, StyleSheet, ActivityIndicator, Text, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import * as Location from 'expo-location';
 import { OSM_PROVIDERS, OSMProviderType } from './MapProviderSelector';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 // Types for GPX data
 export interface LeafletGPXTrack {
@@ -58,6 +59,31 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             latitude: number;
             longitude: number;
         } | null>(null);
+
+        // Colori del tema per i waypoint
+        const waypointStart = useThemeColor({}, 'waypointStart');
+        const waypointFinish = useThemeColor({}, 'waypointFinish');
+        const waypointSummit = useThemeColor({}, 'waypointSummit');
+        const waypointWater = useThemeColor({}, 'waypointWater');
+        const waypointCamp = useThemeColor({}, 'waypointCamp');
+        const waypointRestaurant = useThemeColor({}, 'waypointRestaurant');
+        const waypointDanger = useThemeColor({}, 'waypointDanger');
+        const waypointViewpoint = useThemeColor({}, 'waypointViewpoint');
+        const waypointBridge = useThemeColor({}, 'waypointBridge');
+        const waypointChurch = useThemeColor({}, 'waypointChurch');
+        const waypointDefault = useThemeColor({}, 'waypointDefault');
+
+        // Colori di sfondo per la WebView
+        const waypointBackgroundColor = useThemeColor({}, 'background');
+        const mapBackgroundColor = useThemeColor({}, 'background');
+        const userLocationColor = useThemeColor({}, 'primary');
+        const userLocationBorderColor = useThemeColor({}, 'background');
+        const defaultTrackColor = useThemeColor({}, 'primary');
+
+        // Stili dinamici
+        const loadingBackgroundColor = useThemeColor({}, 'background');
+        const loadingTextColor = useThemeColor({}, 'text');
+        const loadingIndicatorColor = useThemeColor({}, 'primary');
 
         // Esponi la funzione per richiedere la posizione
         useImperativeHandle(ref, () => ({
@@ -237,7 +263,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             if (symbol?.includes('flag') || name?.includes('start') || name?.includes('partenza')) {
                 return {
                     icon: '🏁',
-                    color: '#00FF00',
+                    color: waypointStart,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'large',
                 };
             }
@@ -250,7 +277,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '🏆',
-                    color: '#FF0000',
+                    color: waypointFinish,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'large',
                 };
             }
@@ -265,7 +293,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '⛰️',
-                    color: '#8B4513',
+                    color: waypointSummit,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -280,7 +309,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '💧',
-                    color: '#0066FF',
+                    color: waypointWater,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -295,7 +325,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '🏕️',
-                    color: '#8B4513',
+                    color: waypointCamp,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -310,7 +341,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '🍽️',
-                    color: '#FF6600',
+                    color: waypointRestaurant,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -324,7 +356,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '⚠️',
-                    color: '#FF0000',
+                    color: waypointDanger,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'large',
                 };
             }
@@ -339,7 +372,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '📸',
-                    color: '#9900FF',
+                    color: waypointViewpoint,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -347,7 +381,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             if (symbol?.includes('bridge') || name?.includes('bridge') || name?.includes('ponte')) {
                 return {
                     icon: '🌉',
-                    color: '#666666',
+                    color: waypointBridge,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -361,7 +396,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             ) {
                 return {
                     icon: '⛪',
-                    color: '#8B4513',
+                    color: waypointChurch,
+                    backgroundColor: waypointBackgroundColor,
                     size: 'medium',
                 };
             }
@@ -369,7 +405,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             // Default waypoint style
             return {
                 icon: '📍',
-                color: '#007AFF',
+                color: waypointDefault,
+                backgroundColor: waypointBackgroundColor,
                 size: 'medium',
             };
         };
@@ -387,7 +424,7 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             body { 
                 margin: 0; 
                 padding: 0; 
-                background: #f0f0f0;
+                background: ${mapBackgroundColor};
             }
             #map { 
                 height: 100vh; 
@@ -438,8 +475,8 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
             .user-location-marker {
                 width: 26px;
                 height: 26px;
-                background: #007AFF;
-                border: 4px solid white;
+                background: ${userLocationColor};
+                border: 4px solid ${userLocationBorderColor};
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -535,9 +572,9 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
                 var customIcon_${index} = L.divIcon({
                     html: '<div class="custom-marker marker-${
                         style.size
-                    }" style="background-color: white; border-color: ${style.color}; color: ${
+                    }" style="background-color: ${style.backgroundColor}; border-color: ${
                         style.color
-                    };">${style.icon}</div>',
+                    }; color: ${style.color};">${style.icon}</div>',
                     className: 'custom-marker-wrapper',
                     iconSize: [${style.size === 'small' ? 24 : style.size === 'large' ? 40 : 32}, ${
                         style.size === 'small' ? 24 : style.size === 'large' ? 40 : 32
@@ -568,7 +605,7 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
                         .join(',')}
                 ];
                 var polyline_${index} = L.polyline(trackCoords_${index}, {
-                    color: '${track.color || '#007AFF'}',
+                    color: '${track.color || defaultTrackColor}',
                     weight: 3,
                     opacity: 0.8
                 }).addTo(map);
@@ -989,9 +1026,16 @@ const GPXMapLeaflet = forwardRef<GPXMapLeafletRef, GPXMapLeafletProps>(
                     mixedContentMode="compatibility"
                     allowsInlineMediaPlayback={true}
                     renderLoading={() => (
-                        <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="large" color="#007AFF" />
-                            <Text style={styles.loadingText}>Caricamento mappa Leaflet...</Text>
+                        <View
+                            style={[
+                                styles.loadingContainer,
+                                { backgroundColor: loadingBackgroundColor },
+                            ]}
+                        >
+                            <ActivityIndicator size="large" color={loadingIndicatorColor} />
+                            <Text style={[styles.loadingText, { color: loadingTextColor }]}>
+                                Caricamento mappa Leaflet...
+                            </Text>
                         </View>
                     )}
                     onError={(error) => {
@@ -1022,11 +1066,9 @@ const styles = StyleSheet.create({
         bottom: 0,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f0f0f0',
     },
     loadingText: {
         marginTop: 16,
         fontSize: 16,
-        color: '#666',
     },
 });

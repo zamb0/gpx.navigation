@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from 'react-native';
 import { tileCacheService, TileCacheConfig } from '../services/TileCacheService';
 import { OSMProviderType } from './MapProviderSelector';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface OfflineMapManagerProps {
     provider: OSMProviderType;
@@ -113,26 +114,69 @@ export default function OfflineMapManager({ provider }: OfflineMapManagerProps) 
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>🗺️ Mappe Offline</Text>
+        <OfflineMapManagerThemed
+            provider={provider}
+            isDownloading={isDownloading}
+            cacheStats={cacheStats}
+            downloadProgress={downloadProgress}
+            downloadCurrentArea={downloadCurrentArea}
+            clearCache={clearCache}
+        />
+    );
+}
+
+function OfflineMapManagerThemed({
+    provider,
+    isDownloading,
+    cacheStats,
+    downloadProgress,
+    downloadCurrentArea,
+    clearCache,
+}: any) {
+    const backgroundColor = useThemeColor({}, 'card');
+    const textColor = useThemeColor({}, 'text');
+    const placeholderColor = useThemeColor({}, 'placeholder');
+    const accentColor = useThemeColor({}, 'accent');
+    const primaryColor = useThemeColor({}, 'primary');
+    const dangerColor = useThemeColor({}, 'danger');
+
+    const formatBytes = (bytes: number): string => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    return (
+        <View style={[styles.container, { backgroundColor }]}>
+            <Text style={[styles.title, { color: textColor }]}>🗺️ Mappe Offline</Text>
 
             <View style={styles.statsContainer}>
-                <Text style={styles.statsText}>Tiles in cache: {cacheStats.count}</Text>
-                <Text style={styles.statsText}>
+                <Text style={[styles.statsText, { color: placeholderColor }]}>
+                    Tiles in cache: {cacheStats.count}
+                </Text>
+                <Text style={[styles.statsText, { color: placeholderColor }]}>
                     Spazio occupato: {formatBytes(cacheStats.totalSize)}
                 </Text>
             </View>
 
             {isDownloading && (
-                <View style={styles.progressContainer}>
-                    <ActivityIndicator size="small" color="#007AFF" />
-                    <Text style={styles.progressText}>{downloadProgress}</Text>
+                <View style={[styles.progressContainer, { backgroundColor: accentColor }]}>
+                    <ActivityIndicator size="small" color={primaryColor} />
+                    <Text style={[styles.progressText, { color: primaryColor }]}>
+                        {downloadProgress}
+                    </Text>
                 </View>
             )}
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    style={[styles.button, styles.downloadButton]}
+                    style={[
+                        styles.button,
+                        styles.downloadButton,
+                        { backgroundColor: primaryColor },
+                    ]}
                     onPress={downloadCurrentArea}
                     disabled={isDownloading}
                 >
@@ -142,7 +186,7 @@ export default function OfflineMapManager({ provider }: OfflineMapManagerProps) 
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    style={[styles.button, styles.clearButton]}
+                    style={[styles.button, styles.clearButton, { backgroundColor: dangerColor }]}
                     onPress={clearCache}
                     disabled={isDownloading || cacheStats.count === 0}
                 >
@@ -156,7 +200,6 @@ export default function OfflineMapManager({ provider }: OfflineMapManagerProps) 
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        backgroundColor: '#f8f9fa',
         borderRadius: 8,
         marginVertical: 8,
     },
@@ -164,14 +207,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 12,
-        color: '#333',
     },
     statsContainer: {
         marginBottom: 16,
     },
     statsText: {
         fontSize: 14,
-        color: '#666',
         marginBottom: 4,
     },
     progressContainer: {
@@ -179,13 +220,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
         padding: 12,
-        backgroundColor: '#e3f2fd',
         borderRadius: 6,
     },
     progressText: {
         marginLeft: 8,
         fontSize: 14,
-        color: '#1976d2',
     },
     buttonContainer: {
         gap: 8,
@@ -195,17 +234,13 @@ const styles = StyleSheet.create({
         borderRadius: 6,
         alignItems: 'center',
     },
-    downloadButton: {
-        backgroundColor: '#007AFF',
-    },
+    downloadButton: {},
     downloadButtonText: {
         color: 'white',
         fontSize: 14,
         fontWeight: 'bold',
     },
-    clearButton: {
-        backgroundColor: '#ff3b30',
-    },
+    clearButton: {},
     clearButtonText: {
         color: 'white',
         fontSize: 14,

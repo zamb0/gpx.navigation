@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 // OpenStreetMap tile providers
 export const OSM_PROVIDERS = {
@@ -61,9 +62,17 @@ export default function MapProviderSelector({
     onProviderChange,
     style,
 }: MapProviderSelectorProps) {
+    const backgroundColor = useThemeColor({}, 'card');
+    const textColor = useThemeColor({}, 'text');
+    const placeholderColor = useThemeColor({}, 'placeholder');
+    const borderColor = useThemeColor({}, 'border');
+    const itemBackground = useThemeColor({}, 'background');
+    const primaryColor = useThemeColor({}, 'primary');
+    const accentColor = useThemeColor({}, 'accent');
+
     return (
-        <View style={[styles.container, style]}>
-            <Text style={styles.title}>Tipo di Mappa</Text>
+        <View style={[styles.container, { backgroundColor }, style]}>
+            <Text style={[styles.title, { color: textColor }]}>Tipo di Mappa</Text>
             <View style={styles.providerGrid}>
                 {(Object.keys(OSM_PROVIDERS) as OSMProviderType[]).map((providerKey) => {
                     const provider = OSM_PROVIDERS[providerKey];
@@ -72,7 +81,14 @@ export default function MapProviderSelector({
                     return (
                         <TouchableOpacity
                             key={providerKey}
-                            style={[styles.providerButton, isSelected && styles.selectedProvider]}
+                            style={[
+                                styles.providerButton,
+                                {
+                                    backgroundColor: itemBackground,
+                                    borderColor: isSelected ? primaryColor : borderColor,
+                                },
+                                isSelected && { backgroundColor: accentColor },
+                            ]}
                             onPress={() => onProviderChange(providerKey)}
                         >
                             <View style={styles.providerHeader}>
@@ -80,7 +96,7 @@ export default function MapProviderSelector({
                                 <Text
                                     style={[
                                         styles.providerName,
-                                        isSelected && styles.selectedProviderText,
+                                        { color: isSelected ? primaryColor : textColor },
                                     ]}
                                 >
                                     {provider.name}
@@ -89,7 +105,7 @@ export default function MapProviderSelector({
                             <Text
                                 style={[
                                     styles.providerDescription,
-                                    isSelected && styles.selectedProviderDescription,
+                                    { color: isSelected ? primaryColor : placeholderColor },
                                 ]}
                             >
                                 {provider.description}
@@ -105,7 +121,6 @@ export default function MapProviderSelector({
 const styles = StyleSheet.create({
     container: {
         padding: 16,
-        backgroundColor: '#f8f9fa',
         borderRadius: 8,
         marginVertical: 8,
     },
@@ -113,7 +128,6 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 12,
-        color: '#333',
     },
     providerGrid: {
         flexDirection: 'row',
@@ -122,16 +136,10 @@ const styles = StyleSheet.create({
     },
     providerButton: {
         width: '48%',
-        backgroundColor: '#fff',
         padding: 12,
         borderRadius: 8,
         borderWidth: 2,
-        borderColor: '#e9ecef',
         marginBottom: 8,
-    },
-    selectedProvider: {
-        borderColor: '#007AFF',
-        backgroundColor: '#f0f8ff',
     },
     providerHeader: {
         flexDirection: 'row',
@@ -145,18 +153,10 @@ const styles = StyleSheet.create({
     providerName: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333',
         flex: 1,
-    },
-    selectedProviderText: {
-        color: '#007AFF',
     },
     providerDescription: {
         fontSize: 12,
-        color: '#666',
         lineHeight: 16,
-    },
-    selectedProviderDescription: {
-        color: '#0066CC',
     },
 });

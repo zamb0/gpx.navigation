@@ -2,8 +2,12 @@ import { StyleSheet, ScrollView } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 export default function ToolsScreen() {
+    const cardColor = useThemeColor({}, 'card');
+    const borderColor = useThemeColor({}, 'border');
+
     return (
         <ThemedView style={styles.container}>
             <ThemedView style={styles.header}>
@@ -15,22 +19,30 @@ export default function ToolsScreen() {
                 <ThemedView style={styles.section}>
                     <ThemedText type="defaultSemiBold">✂️ Editing Tools</ThemedText>
                     <ThemedView style={styles.toolGrid}>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>✂️</ThemedText>
                             <ThemedText type="defaultSemiBold">Scissors</ThemedText>
                             <ThemedText type="default">Cut and split tracks</ThemedText>
                         </ThemedView>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>🔗</ThemedText>
                             <ThemedText type="defaultSemiBold">Merge</ThemedText>
                             <ThemedText type="default">Join multiple tracks</ThemedText>
                         </ThemedView>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>📍</ThemedText>
                             <ThemedText type="defaultSemiBold">Waypoints</ThemedText>
                             <ThemedText type="default">Add and edit waypoints</ThemedText>
                         </ThemedView>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>🎛️</ThemedText>
                             <ThemedText type="defaultSemiBold">Reduce</ThemedText>
                             <ThemedText type="default">Simplify track points</ThemedText>
@@ -41,22 +53,30 @@ export default function ToolsScreen() {
                 <ThemedView style={styles.section}>
                     <ThemedText type="defaultSemiBold">📊 Analysis Tools</ThemedText>
                     <ThemedView style={styles.toolGrid}>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>📈</ThemedText>
                             <ThemedText type="defaultSemiBold">Elevation</ThemedText>
                             <ThemedText type="default">Profile and correction</ThemedText>
                         </ThemedView>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>📏</ThemedText>
                             <ThemedText type="defaultSemiBold">Statistics</ThemedText>
                             <ThemedText type="default">Distance, speed, time</ThemedText>
                         </ThemedView>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>🧹</ThemedText>
                             <ThemedText type="defaultSemiBold">Clean</ThemedText>
                             <ThemedText type="default">Remove errors</ThemedText>
                         </ThemedView>
-                        <ThemedView style={styles.toolCard}>
+                        <ThemedView
+                            style={[styles.toolCard, { backgroundColor: cardColor, borderColor }]}
+                        >
                             <ThemedText style={styles.toolIcon}>⏱️</ThemedText>
                             <ThemedText type="defaultSemiBold">Time</ThemedText>
                             <ThemedText type="default">Edit timestamps</ThemedText>
@@ -96,8 +116,6 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#ddd',
-        backgroundColor: '#f8f9fa',
         alignItems: 'center',
         gap: 5,
     },

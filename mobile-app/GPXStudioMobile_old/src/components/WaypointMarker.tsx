@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { getWaypointStyle } from '../utils/waypointTypes';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface WaypointMarkerProps {
     symbol?: string;
@@ -12,15 +13,20 @@ interface WaypointMarkerProps {
 export default function WaypointMarker({ symbol, type, name, size = 24 }: WaypointMarkerProps) {
     const style = getWaypointStyle(symbol, type, name);
 
+    // Colori del tema
+    const shadowColor = useThemeColor({}, 'shadow');
+    const backgroundColor = useThemeColor({}, 'background');
+
     return (
         <View
             style={[
                 styles.container,
                 {
-                    backgroundColor: style.color,
+                    backgroundColor: backgroundColor,
                     borderColor: style.color,
                     width: size + 8,
                     height: size + 8,
+                    shadowColor: shadowColor,
                 },
             ]}
         >
@@ -33,10 +39,8 @@ const styles = StyleSheet.create({
     container: {
         borderRadius: 20,
         borderWidth: 2,
-        backgroundColor: 'white',
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
         shadowOffset: {
             width: 0,
             height: 2,

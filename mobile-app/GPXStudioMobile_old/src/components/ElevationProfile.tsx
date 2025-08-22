@@ -11,6 +11,7 @@ import {
 import { Svg, Path, Line, Circle, Text as SvgText, Rect } from 'react-native-svg';
 import { LeafletGPXTrack } from './GPXMapLeaflet';
 import { TrackSegment, TrackPoint } from '@/src/lib';
+import { useThemeColor } from '@/hooks/useThemeColor';
 
 interface ElevationProfileProps {
     tracks: LeafletGPXTrack[];
@@ -39,6 +40,10 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     onTrackVisibilityChange,
     height = 200,
 }) => {
+    const backgroundColor = useThemeColor({}, 'background');
+    const textColor = useThemeColor({}, 'text');
+    const placeholderColor = useThemeColor({}, 'placeholder');
+    const shadowColor = useThemeColor({}, 'shadow');
     const [selectedPointIndex, setSelectedPointIndex] = useState<number | null>(null);
     const [cursorPosition, setCursorPosition] = useState<{
         x: number;
@@ -477,8 +482,8 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
 
     if (elevationData.length === 0) {
         return (
-            <View style={[styles.container, { height }]}>
-                <Text style={styles.noDataText}>
+            <View style={[styles.container, { height, backgroundColor, shadowColor }]}>
+                <Text style={[styles.noDataText, { color: textColor }]}>
                     {visibleTracksCount === 0
                         ? 'Seleziona almeno una traccia da visualizzare'
                         : 'Nessun dato altimetrico disponibile'}
@@ -490,21 +495,23 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
     const selectedPoint = selectedPointIndex !== null ? elevationData[selectedPointIndex] : null;
 
     return (
-        <View style={[styles.container, { height }]}>
+        <View style={[styles.container, { height, backgroundColor, shadowColor }]}>
             {/* Header compatto */}
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>📊 Profilo Altimetrico</Text>
+                <Text style={[styles.title, { color: textColor }]}>📊 Profilo Altimetrico</Text>
 
                 {/* Statistiche rapide compatte */}
                 <View style={styles.statsContainer}>
-                    <Text style={styles.statText}>
+                    <Text style={[styles.statText, { color: placeholderColor }]}>
                         📏 {formatDistance(chartBounds.maxDistance)}
                     </Text>
-                    <Text style={styles.statText}>⛰️ {Math.round(chartBounds.maxElevation)}m</Text>
-                    <Text style={styles.statText}>
+                    <Text style={[styles.statText, { color: placeholderColor }]}>
+                        ⛰️ {Math.round(chartBounds.maxElevation)}m
+                    </Text>
+                    <Text style={[styles.statText, { color: placeholderColor }]}>
                         📈 +{Math.round(chartBounds.elevationGain)}m
                     </Text>
-                    <Text style={styles.statText}>
+                    <Text style={[styles.statText, { color: placeholderColor }]}>
                         📉 -{Math.round(chartBounds.elevationLoss)}m
                     </Text>
                 </View>
@@ -607,7 +614,7 @@ const ElevationProfile: React.FC<ElevationProfileProps> = ({
             </View>
 
             {cursorPosition && (
-                <Text style={styles.selectedPointInfo}>
+                <Text style={[styles.selectedPointInfo, { color: placeholderColor }]}>
                     📍 {Math.round(cursorPosition.elevation)}m •{' '}
                     {formatDistance(cursorPosition.distance)} • Trascina per esplorare il tracciato
                 </Text>
@@ -644,11 +651,9 @@ function formatDistance(meters: number): string {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
         borderRadius: 12,
         padding: 12,
         elevation: 4,
-        shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -659,7 +664,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#1F2937',
         marginBottom: 8,
         textAlign: 'center',
     },
@@ -670,18 +674,15 @@ const styles = StyleSheet.create({
     },
     statText: {
         fontSize: 11,
-        color: '#6B7280',
         fontWeight: '500',
     },
     noDataText: {
         textAlign: 'center',
-        color: '#6B7280',
         fontSize: 14,
         marginTop: 50,
     },
     selectedPointInfo: {
         fontSize: 11,
-        color: '#6B7280',
         textAlign: 'center',
         marginTop: 6,
         fontStyle: 'italic',
